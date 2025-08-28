@@ -1,5 +1,9 @@
 // profile.js
 
+// Google Apps Script URL for saving remotely (optional)
+const webAppUrl = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+const enableRemoteSave = false; // toggle to true if remote save is allowed
+
 const profileFieldsList = [
   "currently_living","unique_id","foolhumaa_form_number","beneficiary_national_id",
   "beneficiary_name","dob","sex","island_residence","current_address",
@@ -36,7 +40,7 @@ function getChildIdFromURL() {
   return params.get("id") || "default_child";
 }
 
-// Render profile
+// Render profile fields
 function renderProfile(child, editable=false){
   const container = document.getElementById("profileContainer");
   container.innerHTML = "";
@@ -91,7 +95,7 @@ function loadProfile(){
   }
 }
 
-// Edit, cancel, save buttons
+// Edit button
 document.getElementById("editProfileBtn").addEventListener("click", ()=>{
   renderProfile(originalData, true);
   document.getElementById("editProfileBtn").classList.add("hidden");
@@ -100,6 +104,7 @@ document.getElementById("editProfileBtn").addEventListener("click", ()=>{
   showNotice("Editing mode enabled.", "warning");
 });
 
+// Cancel button
 document.getElementById("cancelProfileBtn").addEventListener("click", ()=>{
   renderProfile(originalData, false);
   document.getElementById("editProfileBtn").classList.remove("hidden");
@@ -108,7 +113,8 @@ document.getElementById("cancelProfileBtn").addEventListener("click", ()=>{
   showNotice("Changes discarded.", "info");
 });
 
-document.getElementById("saveProfileBtn").addEventListener("click", ()=>{
+// Save button
+document.getElementById("saveProfileBtn").addEventListener("click", async ()=>{
   const container = document.getElementById("profileContainer");
   const inputs = container.querySelectorAll("input, select");
 
@@ -124,6 +130,21 @@ document.getElementById("saveProfileBtn").addEventListener("click", ()=>{
   document.getElementById("cancelProfileBtn").classList.add("hidden");
 
   showNotice("Changes saved locally!", "success");
+
+  if(enableRemoteSave && webAppUrl){
+    try {
+      const response = await fetch(webAppUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "update", key: childId, data: payload })
+      });
+      const result = await response.json();
+      showNotice(result.message || "Saved remotely!", "success");
+    } catch(err){
+      console.error(err);
+      showNotice("Remote save failed.", "error");
+    }
+  }
 });
 
 window.onload = loadProfile;
