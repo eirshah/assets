@@ -1,7 +1,7 @@
 // profile.js
 
 // Google Apps Script URL for saving remotely (optional)
-const webAppUrl = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
+const webAppUrl = "https://script.google.com/macros/s/AKfycbx3iquv624k2RUg3kstfSXBJV_CTu8TjkwcuO8LyAGjnfJp7hblxP24Y7xdJnoU00tj/exec";
 const enableRemoteSave = false; // toggle to true if remote save is allowed
 
 const profileFieldsList = [
